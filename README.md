@@ -21,9 +21,11 @@ Settings are kept in your browser between visits, and a whole setup can be saved
 ## How the simulation works
 - **The field** is fixed: the meta shares are turned into whole players by largest remainder, the same in every
   simulated event.
-- **Pairings:** round 1 is random. Later rounds are Swiss: players on the same record meet, a player left over
-  floats down, and rematches are avoided where the simple pairing can. With an odd count, the lowest-placed player
-  without a bye gets one, which counts as a win.
+- **Pairings:** round 1 is random. Later rounds are Swiss: players on the same record meet, and a player left
+  over floats down. Every player's opponents are tracked, and the pairing backtracks so nobody meets the same
+  opponent twice unless the round can't be paired any other way. That only happens in tiny events with nearly as
+  many rounds as opponents, and then with as few rematches as possible. With an odd count, the lowest-placed
+  player without a bye gets one, which counts as a win.
 - **Every match is a best of 3, played out game by game.**
   - A coin flip decides who goes first in game 1, and the loser of each game goes first in the next.
   - Each game is a roll of 1–1000: the player on the play wins if the roll is at most their win rate in tenths of

@@ -68,13 +68,54 @@ test('Swiss pairs by record, so two unbeatable decks always end up meeting', () 
     }
 });
 
-test('rematches are rare and only forced', () => {
+test('nobody meets the same opponent twice when the round can avoid it', () => {
     const shares = initialShares(twoWeeks.archetypes);
-    const state = { data: twoWeeks, shares, overrides: {}, threshold: 50, you: null, event: { players: 64, rounds: 6 } };
-    const input = simInput(state);
-    const { rematches } = simulate({ ...input, sims: 2000 }, createRng('rematch'));
-    assert.ok(rematches / (2000 * 6 * 32) < 0.001, `${rematches} rematches`);
-    // 4 players, 4 rounds: round 4 has to be a rematch.
+    for (const [players, rounds, sims] of [[64, 6, 1000], [33, 6, 1000], [128, 7, 300], [9, 4, 2000], [12, 6, 2000], [16, 9, 1000]]) {
+        const state = { data: twoWeeks, shares, overrides: {}, threshold: 50, you: null, event: { players, rounds } };
+        const { rematches } = simulate({ ...simInput(state), sims }, createRng(`no-rematch-${players}`));
+        assert.equal(rematches, 0, `${players} players, ${rounds} rounds`);
+    }
+});
+
+// The fewest rematches any pairing of `players` can have (one bye if the count is odd).
+function fewestRematches(players, played) {
+    const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+    const pairUp = list => {
+        if (list.length === 0) return 0;
+        const [p, ...rest] = list;
+        let best = Infinity;
+        rest.forEach((q, i) => {
+            const cost = (played.has(key(p, q)) ? 1 : 0) + pairUp(rest.filter((_, k) => k !== i));
+            best = Math.min(best, cost);
+        });
+        return best;
+    };
+    if (players.length % 2 === 0) return pairUp(players);
+    return Math.min(...players.map(b => pairUp(players.filter(p => p !== b))));
+}
+
+test('when a round can\'t avoid rematches, it has as few as possible', () => {
+    // Small events with as many rounds as opponents, where earlier pairings can
+    // leave no rematch-free option. Checked round by round against every pairing.
+    for (const players of [4, 5, 6, 7, 8]) {
+        const ev = createEvent({ seats: [Math.ceil(players / 2), Math.floor(players / 2)], ...dominant, rounds: players });
+        const rng = createRng(`fewest-${players}`);
+        const everyone = Array.from({ length: players }, (_, p) => p);
+        let forced = 0;
+        for (let e = 0; e < 100; e++) {
+            const played = new Set();
+            const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+            playEvent(ev, rng, (round, pairs) => {
+                const best = fewestRematches(everyone, played);
+                const actual = pairs.filter(([p, q]) => played.has(key(p, q))).length;
+                assert.equal(actual, best, `${players} players, round ${round + 1}`);
+                forced += best;
+                for (const [p, q] of pairs) played.add(key(p, q));
+            });
+        }
+        assert.ok(forced > 0, `${players} players: some rounds should have needed a rematch`);
+    }
+    // 4 players, 4 rounds: by round 4 everyone has met, so both matches are rematches.
     const ev = createEvent({ seats: [2, 2], ...dominant, rounds: 4 });
     playEvent(ev, createRng('forced'));
     assert.equal(ev.rematches, 2);

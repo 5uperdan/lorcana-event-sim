@@ -238,9 +238,14 @@ JSON. Overrides are keyed by archetype-id pair, so they survive a data refresh.
    - Group players by wins and shuffle within each group.
    - Pair from the top down, floating an odd player down to the next group.
    - Skip a rematch by taking the next candidate; if nothing else works, accept the rematch and count it.
-   - *Built:* this simple pairing gives about 0.01% rematches at 64 players and 0.25% at 33 over 6 rounds. The
-     results show the count. A smarter pairing could avoid some of them, but the effect on the statistics is
-     negligible.
+   - *Built:* every player is tracked with their opponents so far. The pairing backtracks: if the rest of the
+     round can't be paired once a player takes their nearest unplayed opponent, it undoes that pair and tries the
+     next. So nobody meets the same opponent twice when the round can avoid it, and the bye goes to the
+     lowest-placed player whose bye allows that. Realistic events (e.g. 33–4,096 players over ⌈log₂ players⌉
+     rounds) get zero rematches.
+   - Only tiny events with nearly as many rounds as opponents (e.g. 8 players over 7 rounds) can reach a round with
+     no rematch-free pairing. Those rounds get the fewest rematches possible, tested against every pairing, and the
+     results show the count.
 4. **Byes:** with an odd number of players, the lowest-placed player who hasn't had a bye gets one, counted as a
    match win.
 5. **Each match is a best of 3:** a coin flip decides who goes first in game 1. Games are played until someone has

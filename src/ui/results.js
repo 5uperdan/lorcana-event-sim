@@ -78,7 +78,7 @@ export function initResults(store) {
                 `${fmtInt(results.sims)} events · ${fmtInt(results.players)} players · ${results.rounds} rounds · ` +
                 `${results.source.queue}, duels.ink data of ${fmtDateTime(results.source.updatedAt)} · seed ${results.seed} · ` +
                 `${(results.elapsed / 1000).toFixed(1)} s` +
-                (results.rematches ? ` · ${fmtInt(results.rematches)} rematches (${(100 * rematchShare).toFixed(2)}% of matches)` : '')),
+                (results.rematches ? ` · ${fmtInt(results.rematches)} rematches the pairing couldn't avoid (${(100 * rematchShare).toFixed(2)}% of matches)` : '')),
             h('div', { class: 'table-wrap' }, table),
             absent.length > 0 && h('p', { class: 'hint' },
                 `Not in the field at ${fmtInt(results.players)} players (their share rounds to no seats): `,
