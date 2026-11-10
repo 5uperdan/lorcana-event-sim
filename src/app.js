@@ -7,6 +7,7 @@ import { initShares } from './ui/shares.js';
 import { initMatchups } from './ui/matchups.js';
 import { initYou } from './ui/you.js';
 import { initEvent } from './ui/event.js';
+import { initResults } from './ui/results.js';
 
 const store = createStore({
     data: null,                       // parseMeta() output for the loaded queue and period
@@ -35,6 +36,7 @@ initShares(store);
 initMatchups(store);
 initYou(store);
 initEvent(store);
+initResults(store);
 
 data.load(store.state.source.queue, store.state.source.period);
 
