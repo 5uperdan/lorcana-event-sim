@@ -17,6 +17,8 @@
     <main>
         <section id="data" aria-labelledby="data-h">
             <h2 id="data-h"><span class="step">1</span> Data</h2>
+            <p class="hint">Choose a queue and time range to load the data live from duels.ink, or import a saved
+                response instead. You only need one of the two.</p>
             <div class="controls">
                 <label>Queue
                     <select id="queue"></select>
@@ -25,7 +27,12 @@
                 <label>Time range
                     <select id="period"></select>
                 </label>
-                <button type="button" id="import-btn" class="secondary">Import JSON…</button>
+            </div>
+            <div class="controls alt-source">
+                <span class="or">Or</span>
+                <button type="button" id="import-btn" class="secondary" aria-describedby="import-hint">Import JSON…</button>
+                <span id="import-hint" class="muted">a duels.ink <code>/api/stats/meta</code> response saved as a file,
+                    used in place of the live data</span>
                 <input type="file" id="import-file" accept="application/json,.json" hidden>
             </div>
             <p id="data-status" class="status" role="status" aria-live="polite">Loading…</p>

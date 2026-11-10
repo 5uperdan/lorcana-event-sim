@@ -99,6 +99,8 @@ h3 { font-size: 1rem; margin: 14px 0 6px; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: flex-end; }
 .controls label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
 .controls label.check { flex-direction: row; align-items: center; color: var(--text); padding-bottom: 6px; }
+.alt-source { margin-top: 10px; align-items: center; font-size: 0.85rem; }
+.alt-source .or { font-weight: 600; }
 
 select, input[type="number"], input[type="text"], button {
     font: inherit;

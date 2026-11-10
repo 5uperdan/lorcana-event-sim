@@ -4,7 +4,8 @@ A static site that simulates Swiss Disney Lorcana events from duels.ink archetyp
 reports how many matches each archetype wins.
 
 1. **Data:** pick a duels.ink queue (BO3 queues by default) and a time range: the full season, or the last N
-   weeks. Archetype meta shares and matchups (on the play and on the draw) load live through a small proxy.
+   weeks. Archetype meta shares and matchups (on the play and on the draw) load live through a small proxy. Or,
+   instead, import a duels.ink response saved as JSON.
 2. **Meta share:** adjust each archetype's share in 0.1% steps. The page warns until the total is exactly 100.0%,
    and shows how many players each archetype gets in the field.
 3. **Matchups:** collapsed by default. Each pair is shown once, with the first archetype's game win rate on the
