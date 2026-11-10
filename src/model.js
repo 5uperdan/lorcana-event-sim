@@ -167,3 +167,26 @@ export function yourLabel(state) {
     const base = archetypeById(state.data, state.you.base);
     return state.you.name.trim() || `Your deck (copy of ${base ? base.label : 'an archetype'})`;
 }
+
+// ---- Simulation input ----------------------------------------------------------
+
+// The field and the game-rate table for src/sim.js: every archetype in load order
+// (some may have no seats), then your deck with one seat. onPlay[i * N + j] is
+// participant i's game win rate, in tenths, when on the play against j.
+export function simInput(state) {
+    const ids = state.data.archetypes.map(a => a.id);
+    const seats = seatCounts(state.shares, state.event.players - (state.you ? 1 : 0));
+    if (state.you) {
+        ids.push(YOU);
+        seats.push(1);
+    }
+    const N = ids.length;
+    const onPlay = new Uint16Array(N * N);
+    for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
+            // Your deck never meets itself; any value will do.
+            onPlay[i * N + j] = ids[i] === YOU && i === j ? 500 : effectiveMatchup(state, ids[i], ids[j]).onPlay;
+        }
+    }
+    return { ids, seats, onPlay, rounds: state.event.rounds };
+}

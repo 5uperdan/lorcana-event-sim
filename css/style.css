@@ -189,3 +189,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 /* Your deck */
 #you .you-box { padding: 10px 12px; border-radius: 8px; background: var(--you-soft); border: 1px solid var(--you); }
 #you input[type="text"] { min-width: 16rem; }
+
+/* Event */
+.field-hint { font-size: 0.78rem; color: var(--muted); min-height: 1.1em; }
+.seed { width: 9rem; }
+.progress-row { display: flex; align-items: center; gap: 12px; }
+.progress-row progress { width: min(320px, 60%); height: 10px; accent-color: var(--accent); }

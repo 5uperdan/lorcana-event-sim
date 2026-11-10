@@ -11,3 +11,19 @@ export function bo3MatchProb(a, b) {
     const aSecond = b * afterWin + (1 - b) * afterLoss;
     return (aFirst + aSecond) / 2;
 }
+
+// Participant i's chance of winning a round-1 match, when its opponent is drawn at
+// random from everyone else in the field. Uses simInput()'s seats and onPlay table.
+export function fieldMatchWin(i, seats, onPlay) {
+    const N = seats.length;
+    let weight = 0;
+    let total = 0;
+    for (let j = 0; j < N; j++) {
+        const w = seats[j] - (j === i ? 1 : 0);
+        if (w <= 0) continue;
+        const p = i === j ? 0.5 : bo3MatchProb(onPlay[i * N + j] / 1000, 1 - onPlay[j * N + i] / 1000);
+        weight += w;
+        total += w * p;
+    }
+    return weight > 0 ? total / weight : null;
+}
