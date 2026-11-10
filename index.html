@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lorcana Event Simulator</title>
+    <meta name="description" content="Simulate Swiss Disney Lorcana events from duels.ink archetype matchups.">
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="src/app.js"></script>
+</head>
+<body>
+    <header class="page-header">
+        <h1>Lorcana Event Simulator</h1>
+        <p class="lede">Load archetype matchups from duels.ink, set the meta, and simulate a Swiss event many times over.</p>
+    </header>
+
+    <main>
+        <section id="data" aria-labelledby="data-h">
+            <h2 id="data-h"><span class="step">1</span> Data</h2>
+            <div class="controls">
+                <label>Queue
+                    <select id="queue"></select>
+                </label>
+                <label class="check"><input type="checkbox" id="bo3-only" checked> BO3 only</label>
+                <label>Time range
+                    <select id="period"></select>
+                </label>
+                <button type="button" id="import-btn" class="secondary">Import JSON…</button>
+                <input type="file" id="import-file" accept="application/json,.json" hidden>
+            </div>
+            <p id="data-status" class="status" role="status" aria-live="polite">Loading…</p>
+        </section>
+
+        <section id="shares" aria-labelledby="shares-h">
+            <h2 id="shares-h"><span class="step">2</span> Meta share</h2>
+            <p class="hint">How much of the field plays each archetype. The players column is the fixed number each gets
+                in the simulated event.</p>
+            <div id="shares-total" class="total" role="status" aria-live="polite"></div>
+            <div id="shares-list" class="share-list"></div>
+        </section>
+
+        <section id="matchups" aria-labelledby="matchups-h" hidden>
+            <h2 id="matchups-h"><span class="step">3</span> Matchups</h2>
+        </section>
+
+        <section id="you" aria-labelledby="you-h" hidden>
+            <h2 id="you-h"><span class="step">4</span> Your deck</h2>
+        </section>
+
+        <section id="event" aria-labelledby="event-h" hidden>
+            <h2 id="event-h"><span class="step">5</span> Event</h2>
+        </section>
+
+        <section id="results" aria-labelledby="results-h" hidden>
+            <h2 id="results-h"><span class="step">6</span> Results</h2>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        Data from <a href="https://duels.ink/stats">duels.ink</a>, used with the owner's permission.
+        Archetype matchups are per game; every simulated match is a best of 3, played out game by game.
+        <a href="https://github.com/5uperdan/lorcana-event-sim">Source</a>.
+    </footer>
+</body>
+</html>
