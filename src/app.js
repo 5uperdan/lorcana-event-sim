@@ -4,6 +4,7 @@ import { DEFAULT_SOURCE } from './config.js';
 import { initialShares } from './model.js';
 import { initData } from './ui/data.js';
 import { initShares } from './ui/shares.js';
+import { initMatchups } from './ui/matchups.js';
 
 const store = createStore({
     data: null,                       // parseMeta() output for the loaded queue and period
@@ -24,11 +25,12 @@ function setData(data, source) {
     s.dataShares = initialShares(data.archetypes);
     s.shares = [...s.dataShares];
     s.results = null;
-    store.emit('data', 'shares', 'matchups', 'you', 'results');
+    store.emit('data', 'shares', 'matchups', 'results');
 }
 
 const data = initData(store, { setData });
 initShares(store);
+initMatchups(store);
 
 data.load(store.state.source.queue, store.state.source.period);
 

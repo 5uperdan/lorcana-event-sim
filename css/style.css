@@ -159,3 +159,29 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 }
 
 .page-footer { color: var(--muted); font-size: 0.85rem; padding-bottom: 32px; }
+
+/* Matchups */
+.muted { color: var(--muted); }
+.narrow { width: 6rem; }
+.mu-panel > summary { cursor: pointer; padding: 6px 0; font-size: 0.95rem; }
+.mu-panel[open] > summary { margin-bottom: 6px; }
+.mu-toolbar { margin-bottom: 12px; }
+.mu-toolbar input[type="search"] { min-width: 14rem; }
+.mu-groups { display: grid; gap: 6px; }
+.mu-group { border: 1px solid var(--border); border-radius: 8px; padding: 0 10px; }
+.mu-group > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
+.mu-group > summary .muted { font-weight: 400; font-size: 0.85rem; }
+.mu-group.you { border-color: var(--you); background: var(--you-soft); }
+.mu-rows { display: grid; gap: 4px; padding-bottom: 10px; }
+.mu-row { padding: 8px 10px; border-radius: 6px; background: var(--surface-2); }
+.mu-row.overridden { box-shadow: inset 3px 0 0 var(--accent); }
+.mu-title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 6px; }
+.mu-title .vs { font-weight: 600; }
+.mu-title .games { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.mu-inputs { display: flex; flex-wrap: wrap; gap: 6px 24px; }
+.mu-inputs label { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+.mu-inputs label > span:first-child { min-width: 6.5rem; }
+.mu-derived { margin-top: 4px; color: var(--muted); font-size: 0.85rem; }
+.badge { font-size: 0.75rem; padding: 1px 7px; border-radius: 999px; }
+.badge.est { background: var(--warn-soft); color: var(--warn); }
+.badge.changed { background: var(--accent-soft); color: var(--accent); }
