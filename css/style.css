@@ -270,3 +270,18 @@ table.records td.on-dark { color: #fff; }
     .chart-label { grid-column: 1 / -1; padding-top: 6px; min-height: 0; }
     .axis-row > span:first-child { display: none; }
 }
+
+.scenario { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); align-items: center; }
+
+@media (max-width: 700px) {
+    section { padding: 14px 12px; }
+    .controls label:has(select), .controls label:has(input[type="text"]), .controls label:has(input[type="search"]) { flex: 1 1 100%; min-width: 0; }
+    .controls select, .controls input[type="text"], .controls input[type="search"] { width: 100%; min-width: 0; }
+    .mu-group { padding: 0 6px; }
+    .mu-row { padding: 8px 6px; }
+    .mu-inputs { flex-direction: column; gap: 6px; }
+    .mu-inputs label { flex-wrap: wrap; gap: 2px 8px; }
+    .mu-inputs label > span:first-child { flex: 1 1 100%; min-width: 0; }
+    .mu-inputs .pct-input { flex: 1 1 auto; min-width: 0; }
+    .mu-inputs .pct-input input[type="range"] { flex: 1 1 auto; width: auto; min-width: 0; }
+}

@@ -24,22 +24,47 @@ export function initData(store, { setData }) {
         status.classList.toggle('error', error);
     };
 
-    async function load(queue, period) {
+    async function fetchMeta(queue, period) {
         controller?.abort();
         controller = new AbortController();
+        const res = await fetch(metaUrl(WORKER_BASE, queue, period), { signal: controller.signal });
+        if (!res.ok) throw new Error(`the proxy answered ${res.status}`);
+        return { data: parseMeta(await res.json()), cache: res.headers.get('X-Proxy-Cache') };
+    }
+
+    // Loads one queue and period. Resolves true once the page has the data.
+    async function load(queue, period, peeked = null) {
         setStatus('Loading from duels.ink…');
         queueSel.disabled = periodSel.disabled = true;
         try {
-            const res = await fetch(metaUrl(WORKER_BASE, queue, period), { signal: controller.signal });
-            if (!res.ok) throw new Error(`the proxy answered ${res.status}`);
-            const data = parseMeta(await res.json());
-            setData(data, { queue, period, imported: null, cache: res.headers.get('X-Proxy-Cache') });
+            const { data, cache } = peeked ?? await fetchMeta(queue, period);
+            setData(data, { queue, period, imported: null, cache });
+            return true;
         } catch (e) {
-            if (e.name === 'AbortError') return;
+            if (e.name === 'AbortError') return false;
             setStatus(`Couldn't load the data: ${e.message}. Try again, or import a saved response.`, true);
+            return false;
         } finally {
             queueSel.disabled = periodSel.disabled = false;
         }
+    }
+
+    // Loads "full season" or "last N weeks" for a queue. The week dates come from
+    // the queue's full-season response, which the Worker usually has cached.
+    async function loadRange(queue, range) {
+        if (range === 'all_time') return load(queue, 'all_time');
+        setStatus('Loading from duels.ink…');
+        let season;
+        try {
+            season = await fetchMeta(queue, 'all_time');
+        } catch (e) {
+            if (e.name === 'AbortError') return false;
+            setStatus(`Couldn't load the data: ${e.message}. Try again, or import a saved response.`, true);
+            return false;
+        }
+        const option = periodOptions(season.data.weeks, season.data.currentWeekStart)
+            .find(o => o.period !== 'all_time' && o.weeks === Math.min(range, season.data.weeks.length));
+        return option ? load(queue, option.period) : load(queue, 'all_time', season);
     }
 
     function renderControls(state) {
@@ -96,8 +121,6 @@ export function initData(store, { setData }) {
         }
     });
 
-    return {
-        load,
-        setBo3Only(on) { bo3Only.checked = on; },
-    };
+    bo3Only.checked = store.state.source.bo3Only;
+    return { load, loadRange };
 }

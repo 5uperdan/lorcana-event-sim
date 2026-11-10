@@ -9,6 +9,9 @@ tables and charts.
 Planned 2026-11-10, with your decisions the same day. The duels.ink facts below were checked against the live
 site that day.
 
+**Status, 2026-11-10:** all eight milestones are built, tested and pushed. Where the build differs from this
+plan, it's noted in place, marked *Built:*.
+
 **Decided:**
 - Every match is a BO3, played out game by game. The loser of each game goes first in the next.
 - Pairings are Swiss.
@@ -209,9 +212,10 @@ Every match is a best of 3, played out game by game (section 4.1).
   - Archetypes with no seats at this player count are listed as "not in field".
 - **Chart 1, mean wins:** horizontal bars sorted by mean, with ±1 SD whiskers and a dashed line at the field
   average.
-- **Chart 2, final record distribution:** for each archetype, the share of its players finishing on 0, 1, … R wins,
-  as 100% stacked bars.
-- *(Optional)* **Chart 3, conversion:** share of the field vs share of players with R−1 or more wins.
+- **Chart 2, final record distribution:** for each archetype, the share of its players finishing on 0, 1, … R wins.
+  - *Built:* a single-hue shaded table with the percentage in every cell, not 100% stacked bars. With 6–20 rounds,
+    stacked bars would need 7–21 colour bands, more than colour can tell apart.
+- *(Optional, not built)* **Chart 3, conversion:** share of the field vs share of players with R−1 or more wins.
 
 Settings, shares and overrides are saved in `localStorage`, and a whole scenario can be exported and imported as
 JSON. Overrides are keyed by archetype-id pair, so they survive a data refresh.
@@ -234,6 +238,9 @@ JSON. Overrides are keyed by archetype-id pair, so they survive a data refresh.
    - Group players by wins and shuffle within each group.
    - Pair from the top down, floating an odd player down to the next group.
    - Skip a rematch by taking the next candidate; if nothing else works, accept the rematch and count it.
+   - *Built:* this simple pairing gives about 0.01% rematches at 64 players and 0.25% at 33 over 6 rounds. The
+     results show the count. A smarter pairing could avoid some of them, but the effect on the statistics is
+     negligible.
 4. **Byes:** with an odd number of players, the lowest-placed player who hasn't had a bye gets one, counted as a
    match win.
 5. **Each match is a best of 3:** a coin flip decides who goes first in game 1. Games are played until someone has
@@ -272,8 +279,8 @@ P(A wins the match) = ½·[a·(b + (1−b)·a) + (1−a)·a·b] + ½·[b·(b + (
 
 ## 5. Tech and repository
 - **No build step:** plain HTML, CSS and JavaScript ES modules, which GitHub Pages serves as is.
-- **Charts:** Chart.js 4.4.x, pinned and kept in `vendor/`. The SD whiskers are a floating-bar dataset, so no
-  plugin is needed.
+- **Charts:** *Built:* plain HTML and CSS, with no chart library. The palette was validated for colour-blind
+  readers in both light and dark mode.
 - **Tests:** `node --test` (Node 20+), with no dependencies. The parser, the simulation and the Worker's allowlist
   are plain modules that Node can import.
 - **Repo:** a new public GitHub repository, e.g. `5uperdan/lorcana-event-sim` (name to confirm), served at

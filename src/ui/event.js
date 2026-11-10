@@ -68,7 +68,10 @@ export function initEvent(store) {
 
     function render() {
         const ev = state.event;
-        if (document.activeElement !== rounds.input) rounds.input.value = ev.rounds;
+        // Keep the boxes in step with the state (e.g. after loading a scenario), except while typing.
+        for (const [input, value] of [[players.input, ev.players], [rounds.input, ev.rounds], [sims.input, ev.sims], [seed, ev.seed]]) {
+            if (document.activeElement !== input) input.value = value;
+        }
         const swiss = swissRounds(ev.players);
         roundsHint.replaceChildren(ev.roundsAuto ? `Swiss for ${ev.players}`
             : h('button', {
