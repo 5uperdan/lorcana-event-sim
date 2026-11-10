@@ -185,3 +185,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 .badge { font-size: 0.75rem; padding: 1px 7px; border-radius: 999px; }
 .badge.est { background: var(--warn-soft); color: var(--warn); }
 .badge.changed { background: var(--accent-soft); color: var(--accent); }
+
+/* Your deck */
+#you .you-box { padding: 10px 12px; border-radius: 8px; background: var(--you-soft); border: 1px solid var(--you); }
+#you input[type="text"] { min-width: 16rem; }

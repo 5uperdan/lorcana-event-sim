@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { parseMeta } from '../src/duels.js';
 import {
     TOTAL, largestRemainder, initialShares, normaliseShares, shareTotal, seatCounts, parseTenths, formatTenths,
-    effectiveMatchup, setOverride, clearOverride, findMatchup, pairKey,
+    effectiveMatchup, setOverride, clearOverride, findMatchup, pairKey, hasOverride, yourLabel, YOU,
 } from '../src/model.js';
 
 const season = parseMeta(JSON.parse(readFileSync(new URL('fixtures/core-bo3-season.json', import.meta.url))));
@@ -127,4 +127,45 @@ test('a mirror has one number: the first player\'s win rate', () => {
     assert.equal(m.source, 'data');
     setOverride(state, id, id, { onPlay: 560, onDraw: 123 });
     assert.deepEqual(effectiveMatchup(state, id, id), { onPlay: 560, onDraw: null, games: m.games, source: 'override' });
+});
+
+// ---- Your deck ----
+
+test('your deck copies its archetype, and its changes stay its own', () => {
+    const state = { ...stateFor(season), you: null };
+    const [base, other] = [season.archetypes[1].id, season.archetypes[0].id];
+    state.you = { base, name: '', overrides: {} };
+
+    // Against anyone else: exactly the copied archetype's rates, both ways round.
+    assert.deepEqual(effectiveMatchup(state, YOU, other), effectiveMatchup(state, base, other));
+    const back = effectiveMatchup(state, other, YOU);
+    assert.equal(back.onPlay + effectiveMatchup(state, YOU, other).onDraw, 1000);
+
+    // Against the archetype itself: the mirror's first-player rate, and 100% minus it.
+    const mirror = effectiveMatchup(state, base, base);
+    const vsBase = effectiveMatchup(state, YOU, base);
+    assert.equal(vsBase.onPlay, mirror.onPlay);
+    assert.equal(vsBase.onDraw, 1000 - mirror.onPlay);
+
+    // Changing yours leaves the archetype alone.
+    const before = effectiveMatchup(state, base, other);
+    setOverride(state, YOU, other, { onPlay: 700, onDraw: 650 });
+    assert.equal(effectiveMatchup(state, YOU, other).source, 'override');
+    assert.equal(effectiveMatchup(state, other, YOU).onPlay, 350);
+    assert.deepEqual(effectiveMatchup(state, base, other), before);
+    assert.ok(hasOverride(state, other, YOU));
+    assert.deepEqual(state.overrides, {});
+
+    // Changing the archetype carries over to yours where you haven't changed it,
+    // without calling yours "changed".
+    const third = season.archetypes[2].id;
+    setOverride(state, base, third, { onPlay: 612, onDraw: 501 });
+    const copied = effectiveMatchup(state, YOU, third);
+    assert.deepEqual([copied.onPlay, copied.onDraw, copied.source], [612, 501, 'data']);
+
+    clearOverride(state, other, YOU);
+    assert.deepEqual(effectiveMatchup(state, YOU, other), effectiveMatchup(state, base, other));
+    assert.equal(yourLabel(state), `Your deck (copy of ${season.archetypes[1].label})`);
+    state.you.name = 'Steelsong';
+    assert.equal(yourLabel(state), 'Steelsong');
 });

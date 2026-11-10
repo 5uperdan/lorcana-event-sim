@@ -3,7 +3,8 @@
 // and on the draw; B's side follows from them. A group's rows are built only when
 // it's opened, which keeps the page quick with ~1,200 sliders.
 import {
-    effectiveMatchup, setOverride, clearOverride, fallbackRates, formatTenths, pairKey,
+    effectiveMatchup, setOverride, clearOverride, hasOverride, fallbackRates, formatTenths,
+    archetypeById, yourLabel, YOU,
 } from '../model.js';
 import { bo3MatchProb } from '../match.js';
 import { h, inkChips, fmtInt, percentInput } from './dom.js';
@@ -11,8 +12,8 @@ import { h, inkChips, fmtInt, percentInput } from './dom.js';
 const pct1 = p => `${(p * 100).toFixed(1)}%`;
 
 // The rows of one group: for archetype i, itself (the mirror) and every later one.
-// `extra` lets your deck (section 4) add its own group on top.
-export function initMatchups(store, extra = {}) {
+// Your deck, when there is one, gets a group of its own on top: it against everyone.
+export function initMatchups(store) {
     const section = document.getElementById('matchups');
     const summary = h('summary');
     const search = h('input', { type: 'search', placeholder: 'Find an archetype…', 'aria-label': 'Find an archetype' });
@@ -35,14 +36,8 @@ export function initMatchups(store, extra = {}) {
 
     let groups = [];   // { id, label, colors, pairs: [[x, y]], el, body, rendered, count }
 
-    const labelOf = id => {
-        const a = store.state.data.archetypes.find(arch => arch.id === id);
-        return a ? a.label : extra.labelOf?.(id) ?? id;
-    };
-    const colorsOf = id => {
-        const a = store.state.data.archetypes.find(arch => arch.id === id);
-        return a ? a.colors : extra.colorsOf?.(id) ?? [];
-    };
+    const labelOf = id => (id === YOU ? yourLabel(store.state) : archetypeById(store.state.data, id)?.label ?? id);
+    const colorsOf = id => archetypeById(store.state.data, id === YOU ? store.state.you.base : id)?.colors ?? [];
 
     function matchupRow(x, y) {
         const state = store.state;
@@ -113,7 +108,7 @@ export function initMatchups(store, extra = {}) {
     function visiblePairs(group) {
         const text = search.value.trim().toLowerCase();
         return group.pairs.filter(([x, y]) =>
-            matches([x, y], text) && (!onlyOverridden.checked || store.state.overrides[pairKey(x, y)]));
+            matches([x, y], text) && (!onlyOverridden.checked || hasOverride(store.state, x, y)));
     }
 
     function renderGroup(group) {
@@ -123,14 +118,14 @@ export function initMatchups(store, extra = {}) {
     }
 
     function groupCounts(group) {
-        const changed = group.pairs.filter(([x, y]) => store.state.overrides[pairKey(x, y)]).length;
+        const changed = group.pairs.filter(([x, y]) => hasOverride(store.state, x, y)).length;
         return `${group.pairs.length} matchups${changed ? ` · ${changed} changed` : ''}`;
     }
 
     function buildGroups() {
         const state = store.state;
         const ids = state.data.archetypes.map(a => a.id);
-        const list = [...(extra.groups?.(state) ?? [])];
+        const list = state.you ? [{ id: YOU, you: true, pairs: ids.map(y => [YOU, y]) }] : [];
         ids.forEach((id, i) => list.push({ id, pairs: ids.slice(i).map(y => [id, y]) }));
         groups = list.map(g => {
             const count = h('span', { class: 'muted' });
@@ -174,7 +169,7 @@ export function initMatchups(store, extra = {}) {
         summary.replaceChildren(
             h('strong', {}, 'Matchups'),
             ` · ${fmtInt(pairs)} pairs · ${estimated} estimated · ${changed} changed`);
-        resetAll.disabled = Object.keys(state.overrides).length === 0;
+        resetAll.disabled = changed === 0;
     }
 
     search.addEventListener('input', applyFilters);
@@ -189,7 +184,7 @@ export function initMatchups(store, extra = {}) {
     resetAll.addEventListener('click', () => {
         if (!confirm('Reset every matchup to the duels.ink data?')) return;
         store.state.overrides = {};
-        extra.resetAll?.(store.state);
+        if (store.state.you) store.state.you.overrides = {};
         groups.forEach(g => g.rows.forEach(r => r.refresh()));
         store.emit('matchups');
     });

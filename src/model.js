@@ -100,9 +100,34 @@ function canonicalRates(state, first, second) {
     };
 }
 
+// ---- Your deck --------------------------------------------------------------
+// One extra player, id YOU, copying an archetype (state.you.base). Its matchups follow
+// that archetype's current values until you change one; your changes live in
+// state.you.overrides, keyed by opponent id, from your side. Against the archetype
+// it copies it starts from the mirror: the first player's rate on the play, and
+// 100% minus that on the draw. Changing it never touches the archetype itself.
+
+export const YOU = 'you';
+
+function yourRates(state, y) {
+    const { base, overrides } = state.you;
+    const own = overrides[y];
+    const copied = y === base
+        ? (m => ({ onPlay: m.onPlay, onDraw: 1000 - m.onPlay, games: m.games, source: m.source }))(effectiveMatchup(state, base, base))
+        : effectiveMatchup(state, base, y);
+    // "changed" only ever means your own change; an edited archetype is just copied.
+    const source = copied.source === 'override' ? 'data' : copied.source;
+    return own ? { ...own, games: copied.games, source: 'override' } : { ...copied, source };
+}
+
 // x's game win rates against y, in tenths, and where they came from
 // ('data', 'estimated' or 'override'). A mirror has onPlay only (the first player's).
 export function effectiveMatchup(state, x, y) {
+    if (x === YOU || y === YOU) {
+        const r = yourRates(state, x === YOU ? y : x);
+        const rates = x === YOU ? r : flip(r);
+        return { onPlay: rates.onPlay, onDraw: rates.onDraw, games: r.games, source: r.source };
+    }
     if (x === y) {
         const r = canonicalRates(state, x, x);
         return { onPlay: r.onPlay, onDraw: null, games: r.games, source: r.source };
@@ -115,10 +140,30 @@ export function effectiveMatchup(state, x, y) {
 
 // Sets x's rates against y (tenths). For a mirror only onPlay is used.
 export function setOverride(state, x, y, { onPlay, onDraw }) {
-    if (x === y) state.overrides[pairKey(x, x)] = { onPlay };
+    if (x === YOU) state.you.overrides[y] = { onPlay, onDraw };
+    else if (y === YOU) state.you.overrides[x] = flip({ onPlay, onDraw });
+    else if (x === y) state.overrides[pairKey(x, x)] = { onPlay };
     else state.overrides[pairKey(x, y)] = x < y ? { onPlay, onDraw } : flip({ onPlay, onDraw });
 }
 
 export function clearOverride(state, x, y) {
-    delete state.overrides[pairKey(x, y)];
+    if (x === YOU) delete state.you.overrides[y];
+    else if (y === YOU) delete state.you.overrides[x];
+    else delete state.overrides[pairKey(x, y)];
+}
+
+export function hasOverride(state, x, y) {
+    if (x === YOU) return Boolean(state.you?.overrides[y]);
+    if (y === YOU) return Boolean(state.you?.overrides[x]);
+    return Boolean(state.overrides[pairKey(x, y)]);
+}
+
+export function archetypeById(data, id) {
+    return data.archetypes.find(a => a.id === id) ?? null;
+}
+
+// Your deck's name, or "Your deck (copy of …)" until you give it one.
+export function yourLabel(state) {
+    const base = archetypeById(state.data, state.you.base);
+    return state.you.name.trim() || `Your deck (copy of ${base ? base.label : 'an archetype'})`;
 }
