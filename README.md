@@ -16,7 +16,10 @@ The steps:
 - **`worker/`:** a Cloudflare Worker that proxies duels.ink's stats API with CORS headers and an hour-long cache
   (duels.ink sends no CORS headers). Deployed at https://duels-meta-proxy.5uperdan.workers.dev/; see
   [worker/README.md](worker/README.md).
-- **`src/`:** the site's modules (in progress).
-- **`tests/`:** `npm test` (Node 20+, no dependencies).
+- **`src/duels.js`:** turns a duels.ink response into archetype-level data: profiles grouped into archetypes,
+  matchups oriented per pair, rates on the play and on the draw, and the time ranges offered. The rest of `src/` is
+  in progress.
+- **`scripts/capture-fixture.mjs`:** saves a trimmed duels.ink response as a test fixture.
+- **`tests/`:** `npm test` (Node 20+, no dependencies). It also runs on every push.
 
 Data from [duels.ink](https://duels.ink/stats), used with the owner's permission.

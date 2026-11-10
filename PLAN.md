@@ -51,6 +51,13 @@ Weeks run Sunday to Saturday and are named by their Sunday. The current week is 
     the draw = (`winsA` − `firstPlayerWins`) / (`games` − `firstPlayerGames`).
   - Verified: Rockstar Aggro vs Emerald/Steel Midrange over the last 2 weeks gives 45.4% on the play and 28.8% on
     the draw over 799 games, exactly what duels.ink's tooltip shows.
+  - **Mirrors:** duels.ink's matrix diagonal shows the raw `firstPlayerWinRate`. That only counts the games where
+    its "A" slot went first, and that slot isn't neutral: it wins 52.3% of Detectives mirrors. We count the first
+    player in every mirror game instead, e.g. Detectives 51.7% over 1,848 games where duels.ink shows 54%.
+- **Names aren't stable:** a profile's `archetypeName` can differ from its archetype's, and between periods. For
+  example, `emerald-steel-diablo` is "Touch Paradise" over 2 weeks but "Midrange" over the season. We name each
+  archetype after its most-played profile, as duels.ink's list does, and key everything (including overrides) on
+  `archetypeId`.
 - **`activity.playDrawStats`:** the queue-wide win rate for going first and second, per game (53.7% / 46.3% this
   season). Used as the fallback for thin matchups.
 - **`updatedAt`:** when duels.ink last recomputed the data (daily, around 06:39 UTC).
